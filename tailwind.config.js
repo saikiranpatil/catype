@@ -66,7 +66,12 @@ export default {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
-  		}
+  		},
+		keyframes: {
+			blink: {
+			  '50%': { opacity: "0" },
+			}
+		}
   	}
   },
   plugins: [require("tailwindcss-animate")],

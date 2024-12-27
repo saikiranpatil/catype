@@ -6,9 +6,11 @@ import TypingSummary from "../TypingSummary";
 import { cn } from "@/lib/utils";
 import { useTypingMode } from "@/hooks/useTypingMode";
 import { TbReload } from "react-icons/tb";
+import generateWords from "@/Utils/generateWords";
 
-const actualText = "There are many variations of passages of Lorem Ipsum available, There are many variations of passages of Lorem Ipsum available,";
 const Board = () => {
+  const actualText = generateWords(45);
+
   const boardRef = useRef<HTMLInputElement | null>(null);
   const caretRef = useRef<HTMLInputElement | null>(null);
   const wordsRef = useRef<HTMLDivElement[]>([]);
@@ -114,7 +116,7 @@ const Board = () => {
         </button>
         <input
           type="text"
-          className="absolute z-[-1]"
+          className="absolute z-[-1] top-0"
           value={typedText}
           ref={boardRef}
           onChange={handleTextChange}

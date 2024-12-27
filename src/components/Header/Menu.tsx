@@ -12,6 +12,7 @@ interface menuItemProps {
     isActive?: boolean;
     onClick: () => void
 }
+
 const menuList: menuItemProps[][] = [
     [
         {

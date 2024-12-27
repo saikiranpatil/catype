@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button"
+import { useTypingMode } from "@/hooks/useTypingMode";
 import { cn } from "@/lib/utils"
+import { useEffect } from "react";
 import { IconType } from "react-icons";
 import { FaClock } from "react-icons/fa6";
 import { TbLetterA } from "react-icons/tb";
@@ -50,8 +52,13 @@ const menuList: menuItemProps[][] = [
 ]
 
 const Menu = () => {
+    const { typingMode } = useTypingMode();
+    useEffect(() => {
+        console.log(typingMode);
+    }, [typingMode]);
+
     return (
-        <div className="flex gap-4 items-center justify-center">
+        <div className={`flex gap-4 items-center justify-center ${typingMode ? "opacity-0" : ""}`}>
             <div className="bg-sub-alt rounded-md flex p-1">
                 {menuList.map((menuItems, menuListIdx) => (
                     <div key={"menu-list-idx-" + menuListIdx} className="flex [&:not(:last-child)]:after:w-1 [&:not(:last-child)]:after:relative after:right-0 after:w-0 after:bg-bg after:m-2 after:rounded-sm">

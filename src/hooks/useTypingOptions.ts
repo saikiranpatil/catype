@@ -1,4 +1,4 @@
-import { TypingOptionsTypes } from "@/constants/typingOptions";
+import { TypingOptionsTypes } from "@/common/contants";
 import { createContext, useContext } from "react";
 
 interface TypingOptionsContextProps {

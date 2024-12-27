@@ -66,7 +66,7 @@ const Board = () => {
 
   useEffect(() => {
     boardRef.current?.focus();
-  }, []);
+  }, [actualText]);
 
   useEffect(() => {
     resetTyping();
@@ -115,7 +115,7 @@ const Board = () => {
   }, [typedText]);
 
 
-  if ((textIdx === actualTextArray.length) || (typedTextArray.length && typedTextArray.length === actualTextArray.length && typedTextArray.slice(-1)[0] === actualTextArray.slice(-1)[0])) {
+  if ((actualTextArray.length && textIdx === actualTextArray.length) || (typedTextArray.length && typedTextArray.length === actualTextArray.length && typedTextArray.slice(-1)[0] === actualTextArray.slice(-1)[0])) {
     setTypingMode(false);
     return (
       <>

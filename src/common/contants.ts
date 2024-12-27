@@ -18,17 +18,17 @@ export interface TypingOptionsProps {
 
 export const initialMenuList: MenuListItemProps[] = [
     {
+        type: "word",
+        icon: TbLetterA,
+        values: [10, 25, 50, 100],
+        value: 25
+    },
+    {
         type: "time",
         icon: FaClock,
         values: [15, 30, 60, 120],
         value: 60
     },
-    {
-        type: "word",
-        icon: TbLetterA,
-        values: [10, 25, 50, 100],
-        value: 50
-    }
 ]
 
 export const footerLinks = [
@@ -48,3 +48,8 @@ export const footerLinks = [
         link: "https://x.com/binuryhex"
     },
 ];
+
+export interface TypingOptionsTypes {
+    type: string;
+    value: number;
+}

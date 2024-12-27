@@ -1,24 +1,5 @@
-import { FaCode, FaTwitter } from "react-icons/fa"
-import { IoIosMail } from "react-icons/io"
 import { Button } from "@/components/ui/button"
-
-const footerLinks = [
-    {
-        icon: FaCode,
-        title: "github",
-        link: "github.com"
-    },
-    {
-        icon: FaTwitter,
-        title: "twitter",
-        link: "x.com"
-    },
-    {
-        icon: IoIosMail,
-        title: "mail",
-        link: "gmail.com"
-    },
-];
+import { footerLinks } from "@/common/contants"
 
 const FooterLinks = () => {
     return (

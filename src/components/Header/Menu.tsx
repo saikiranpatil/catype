@@ -1,72 +1,45 @@
+import { initialMenuList, MenuListItemProps } from "@/common/contants";
 import { Button } from "@/components/ui/button"
 import { useTypingMode } from "@/hooks/useTypingMode";
+import { useTypingOptions } from "@/hooks/useTypingOptions";
 import { cn } from "@/lib/utils"
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IconType } from "react-icons";
-import { FaClock } from "react-icons/fa6";
-import { TbLetterA } from "react-icons/tb";
-
-interface menuItemProps {
-    icon?: IconType;
-    title: string;
-    isActive?: boolean;
-    onClick: () => void
-}
-const menuList: menuItemProps[][] = [
-    [
-        {
-            icon: FaClock,
-            title: "time",
-            isActive: true,
-            onClick: () => { }
-        },
-        {
-            icon: TbLetterA,
-            title: "word",
-            isActive: false,
-            onClick: () => { }
-        },
-    ],
-    [
-        {
-            title: "15",
-            isActive: true,
-            onClick: () => { }
-        },
-        {
-            title: "30",
-            isActive: false,
-            onClick: () => { }
-        },
-        {
-            title: "60",
-            isActive: false,
-            onClick: () => { }
-        },
-        {
-            title: "120",
-            isActive: false,
-            onClick: () => { }
-        },
-    ],
-]
 
 const Menu = () => {
     const { typingMode } = useTypingMode();
+
+    const [menuList, setMenuList] = useState<MenuListItemProps[]>(initialMenuList);
+    const [currentMenuIdx, setCurrentMenuIdx] = useState(0);
+
+    const { setTypingOptions } = useTypingOptions();
+
     useEffect(() => {
-        console.log(typingMode);
-    }, [typingMode]);
+        const { type, value } = menuList[currentMenuIdx];
+        setTypingOptions({ type, value });
+    }, [menuList, currentMenuIdx]);
 
     return (
         <div className={`flex gap-4 items-center justify-center ${typingMode ? "opacity-0" : ""}`}>
             <div className="bg-sub-alt rounded-md flex p-1">
-                {menuList.map((menuItems, menuListIdx) => (
-                    <div key={"menu-list-idx-" + menuListIdx} className="flex [&:not(:last-child)]:after:w-1 [&:not(:last-child)]:after:relative after:right-0 after:w-0 after:bg-bg after:m-2 after:rounded-sm">
-                        {menuItems.map((menuItem, menuItemIdx) => (
-                            <div key={"menu-item-" + menuItemIdx + "-title-" + menuItem.title}>
-                                <MenuItem {...menuItem} />
-                            </div>
-                        ))}
+                {menuList.map((menuListItem, menuListIdx) => (
+                    <div key={"menu-list-idx-" + menuListIdx} className="flex">
+                        <MenuItem
+                            title={menuListItem.type}
+                            icon={menuListItem.icon}
+                            isActive={currentMenuIdx === menuListIdx}
+                            onClick={() => setCurrentMenuIdx(menuListIdx)}
+                        />
+                    </div>
+                ))}
+                <div className="bg-bg w-1 h-6 m-2 rounded my-auto" />
+                {menuList[currentMenuIdx].values.map((menuListItem, menuListIdx) => (
+                    <div key={"menu-list-idx-" + menuListIdx} className="flex">
+                        <MenuItem
+                            title={menuListItem.toString()}
+                            isActive={menuList[currentMenuIdx].value === menuListItem}
+                            onClick={() => setMenuList(menuList.map((menuItem, menuIdx) => menuIdx === currentMenuIdx ? { ...menuItem, value: menuListItem } : menuItem))}
+                        />
                     </div>
                 ))}
             </div>
@@ -74,19 +47,26 @@ const Menu = () => {
     )
 }
 
+interface MenuItemProps {
+    icon?: IconType;
+    title: string;
+    isActive: boolean;
+    onClick: () => void;
+}
+
 const MenuItem = ({
     icon: Icon,
     title,
     isActive = false,
     onClick
-}: menuItemProps) => {
+}: MenuItemProps) => {
     return (
         <Button
-            className={cn("group font-normal gap-2 flex justify-center items-center", isActive && "text-main")}
+            className={cn("group font-normal gap-2 flex justify-center items-center", isActive && "text-main hover:text-main")}
             size="sm"
             onClick={onClick}
         >
-            {Icon && <Icon size={45} className={cn("group-hover:text-text", isActive && "text-main")} />}
+            {Icon && <Icon size={45} className={cn("group-hover:text-text", isActive && "text-main group-hover:text-main")} />}
             <span>{title}</span>
         </Button>
     )

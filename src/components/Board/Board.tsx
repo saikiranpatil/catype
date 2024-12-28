@@ -170,7 +170,7 @@ const Board = () => {
 
   return (
     <main onClick={() => boardRef.current?.focus()}>
-      <div id="main" className="w-full overflow-y-hidden mb-6 h-60">
+      <div id="main" className="overflow-y-hidden mb-6 h-60">
         <span
           id="caret"
           ref={caretRef}

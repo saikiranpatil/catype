@@ -5,8 +5,8 @@ import AllProviders from "./common/Provider/AllProviders";
 
 function App() {
   return (
-    <div className="bg-bg text-sub  h-[100vh]">
-      <div className="px-8 md:px-32 sm:px-24 w-full grid grid-rows-[max-content_auto_max-content] grid-cols-1 justify-center pt-10 pb-2 gap-y-8">
+    <div className="bg-bg text-sub  min-h-[100vh]">
+      <div className="px-8 md:px-32 sm:px-24 grid grid-rows-[max-content_auto_max-content] grid-cols-1 justify-center pt-10 pb-2 gap-y-8">
         <AllProviders>
           <Header />
           <Board />

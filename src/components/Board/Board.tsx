@@ -18,9 +18,10 @@ const Board = () => {
   const [typedText, setTypedText] = useState<string>("");
   const [typedTime, setTypedTime] = useState<number[]>([]);
 
+  const [time, setTime] = useState(0);
   const [startIdx, setStartIdx] = useState(0);
   const [typeStartTime, setTpyeStartTime] = useState<number | null>(null);
-  const [countdownSeconds, setCountdownSeconds] = useState(-1);
+  const [typingState, setTypingState] = useState<"Not Started" | "Typing" | "Completed">("Not Started");
 
   const { typingMode, setTypingMode } = useTypingMode();
   const { typingOptions } = useTypingOptions();
@@ -35,16 +36,19 @@ const Board = () => {
     setTypingMode(true);
 
     const typedText = e.target.value;
-    const newTypedText = typedText.replace(/  +/g, ' ');
+    const newTypedText = typedText.replace(/  +/g, " "); // ignoring second whitespace
     setTypedText(newTypedText);
   }
 
   const resetTyping = () => {
-    setTypingMode(false);
-    setTpyeStartTime(null);
+    setTime(0);
     setStartIdx(0);
     setTypedText("");
     generateNewWords();
+    setTypingMode(false);
+    setTpyeStartTime(null);
+    setTypingState("Not Started");
+
     boardRef.current?.focus();
   }
 
@@ -52,21 +56,16 @@ const Board = () => {
     setActualText(generateWords(typeValue));
   }
 
-  let se: ReturnType<typeof setInterval> | null = null;
-  if (typeStartTime && typeType === "time" && !se) {
-    se = setInterval(() => setCountdownSeconds(countdownSeconds + 1), 1000);
+  let si: ReturnType<typeof setInterval> | null = null;
+  const handleIncrementSeconds = () => {
+    setTime(currentTime => currentTime + 1);
   }
-
-  useEffect(() => {
-    if (countdownSeconds === 0 && se) {
-      clearInterval(se);
-      se = null;
+  const clearSecondsInterval = () => {
+    if (si !== null) {
+      clearInterval(si);
+      si = null;
     }
-  }, [countdownSeconds])
-
-  useEffect(() => {
-    boardRef.current?.focus();
-  }, [actualText]);
+  }
 
   useEffect(() => {
     resetTyping();
@@ -77,15 +76,34 @@ const Board = () => {
   }, [actualTextArray]);
 
   useEffect(() => {
-    if (!caretRef.current || textIdx >= actualTextArray.length || !wordsRef.current[textIdx]) return;
+    // handle caret position
+    if (
+      caretRef.current &&
+      textIdx < actualTextArray.length &&
+      wordsRef.current[textIdx]
+    ) {
+      const { left, top } = wordsRef.current[textIdx].getBoundingClientRect();
 
+      caretRef.current.style.top = `${top}px`;
+      caretRef.current.style.left = `${left + (typedTextArray.length ? typedTextArray[typedTextArray.length - 1].length * 18 : 0)}px`;
+    }
 
-    const { left, top } = wordsRef.current[textIdx].getBoundingClientRect();
-
-    caretRef.current.style.top = `${top}px`;
-    caretRef.current.style.left = `${left + (typedTextArray.length ? typedTextArray[typedTextArray.length - 1].length * 18 : 0)}px`;
+    // handle typing state
+    if (
+      typingState === "Not Started" &&
+      (typedTextArray.length !== 1 || typedTextArray[0] !== "")
+    ) {
+      setTypingState("Typing");
+    } else if (
+      typingState === "Typing" &&
+      (textIdx === actualTextArray.length ||
+        typedTextArray.slice(-1)[0] === actualTextArray.slice(-1)[0])
+    ) {
+      setTypingState("Completed");
+    }
   }, [typedTextArray, textIdx]);
 
+  // handle task of removing words at first line when caret enters the third line
   useEffect(() => {
     let count = 0;
 
@@ -100,55 +118,91 @@ const Board = () => {
       }
     }
 
-    setStartIdx(startIdx => startIdx + count);
+    setStartIdx(startIdx + count);
   }, [textIdx]);
 
+  // handle task of storing times of typing of each words and storing the startTime
   useEffect(() => {
     const startTime = typeStartTime || new Date().getTime();
-    if (typedText !== "" && !typeStartTime) {
+    if (typingState === "Typing" && !typeStartTime) {
       setTpyeStartTime(startTime);
     }
 
     if (typeStartTime) {
-      setTypedTime([...typedTime.slice(0, typedText.length - 1), (new Date().getTime()) - startTime]);
+      setTypedTime([
+        ...typedTime.slice(0, typedText.length - 1),
+        new Date().getTime() - startTime,
+      ]);
     }
   }, [typedText]);
 
+  // handle task of countdown timer
+  useEffect(() => {
+    if (typeType === "word") {
+      clearSecondsInterval();
+    } else if (time === typeValue) {
+      clearSecondsInterval();
+      setTypingState("Completed");
+    } else if (si === null && typingState === "Typing") {
+      si = setInterval(handleIncrementSeconds, 1000);
+    }
 
-  if ((actualTextArray.length && textIdx === actualTextArray.length) || (typedTextArray.length && typedTextArray.length === actualTextArray.length && typedTextArray.slice(-1)[0] === actualTextArray.slice(-1)[0])) {
+    return clearSecondsInterval;
+  }, [typeType, typeValue, time, typingState]);
+
+  if (typingState === "Completed") {
     setTypingMode(false);
     return (
       <>
-        <TypingSummary actualText={actualText} typedText={typedText} typedTime={typedTime} />
+        <TypingSummary
+          actualText={actualText}
+          typedText={typedText}
+          typedTime={typedTime}
+        />
         <div className="flex justify-center items-center">
           <Button size="icon" onClick={resetTyping}>
             <IoReloadSharp />
           </Button>
         </div>
       </>
-
     );
   }
 
   return (
     <main onClick={() => boardRef.current?.focus()}>
       <div id="main" className="w-full overflow-y-hidden mb-6 h-60">
-        <span id="caret" ref={caretRef} className="bg-main h-10 w-[3px] absolute left-0 animate-[blink_1s_ease-in-out_infinite] rounded-full" />
-        <div id="timer" className={cn("text-main text-4xl pb-4  opacity-0", typingMode && "opacity-100")}>
-          {typeType === "time" ? countdownSeconds : `${textIdx + 1} / ${actualTextArray.length}`}
+        <span
+          id="caret"
+          ref={caretRef}
+          className={`bg-main h-10 w-[3px] absolute left-0 rounded-full ${typingMode ? "" : "animate-[blink_1s_ease-in-out_infinite]"}`}
+        />
+        <div
+          id="timer"
+          className={cn(
+            "text-main text-4xl pb-4  opacity-0",
+            typingMode && "opacity-100",
+          )}
+        >
+          {typeType === "time"
+            ? typeValue - time
+            : `${textIdx + 1} / ${actualTextArray.length}`}
         </div>
         <button className="font-normal border-0 outline-0 cursor-auto flex justify-start items-start flex-wrap gap-y-6 text-3xl">
           {actualTextArray.slice(startIdx).map((word, wordIdx) => {
             const slicedIdx = startIdx + wordIdx;
             return (
               <div
-                className={`${(textIdx > slicedIdx) && (word.length > typedTextArray[slicedIdx].length) ? "underline" : ""} underline-offset-2 decoration-error mr-4`}
-                ref={(el: HTMLDivElement) => wordsRef.current[slicedIdx] = el}
+                className={`${textIdx > slicedIdx && word.length > typedTextArray[slicedIdx].length ? "underline" : ""} underline-offset-2 decoration-error mr-4`}
+                ref={(el: HTMLDivElement) => (wordsRef.current[slicedIdx] = el)}
               >
                 <BoardWord
                   key={"wordIdx-" + slicedIdx + "-word-" + word}
                   actualWord={word}
-                  typedWord={slicedIdx < typedTextArray.length ? typedTextArray[slicedIdx] : ""}
+                  typedWord={
+                    slicedIdx < typedTextArray.length
+                      ? typedTextArray[slicedIdx]
+                      : ""
+                  }
                   isEnd={slicedIdx === textIdx}
                 />
               </div>

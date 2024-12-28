@@ -7,7 +7,7 @@ const FooterLinks = () => {
             {footerLinks.map(({ link, title, icon: Icon }) => (
                 <Button>
                     <Icon />
-                    <a href={link}>
+                    <a href={link} target="_blank">
                         {title}
                     </a>
                 </Button>

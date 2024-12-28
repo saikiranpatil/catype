@@ -7,9 +7,9 @@ const Navbar = () => {
     const { typingMode } = useTypingMode();
     return (
         <nav className="flex justify-between items-center">
-            <div id="logo" className="flex gap-1">
-                <BiSolidKeyboard className={`h-10 w-auto ${typingMode ? "text-sub" : "text-main"}`} />
-                <span className={`text-2xl ${typingMode ? "text-sub" : "text-text"}`}>
+            <div id="logo" className="flex items-end gap-2">
+                <BiSolidKeyboard className={`h-8 w-auto ${typingMode ? "text-sub" : "text-main"}`}/>
+                <span className={`hidden sm:block text-4xl ${typingMode ? "text-sub" : "text-text"}`}>
                     catype
                 </span>
             </div>
